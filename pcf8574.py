@@ -1,5 +1,4 @@
 from smbus import SMBus
-from termcolor import cprint
 info="""
 How it works?
 1. Get a DEC value from addr (0-255)
@@ -8,39 +7,27 @@ How it works?
 4. Converts new byte to DEC value
 5. Sends DEC to addr (0-255)
 """
-logo="""
-[]  []
-[] []
-[][]
-[] []
-[]  []
-[]  []
-Made by K4CZP3R @2016
-"""
-
 class control:
     def info(self):
-        cprint(logo,'red')
+        print info
     def __init__(self,bus,addr,clearbyte=1,debug=0):
         self.debug = debug
-        self.printinfo(logo,2)
-        self.printinfo("DEBUG MODE - ENABLED",2)
+        self.printinfo("DEBUG MODE - ENABLED",)
         self.bus = bus
         self.addr = addr
-        self.printinfo("Bus = " + str(self.bus) +"\nAddress: " + str(self.addr) + " (Dec)",2)
-        self.printinfo("[>] Setting up bus",0)
+        self.printinfo("Bus = " + str(self.bus) +"\nAddress: " + str(self.addr) + " (Dec)")
+        self.printinfo("[>] Setting up bus")
         self.bus = SMBus(self.bus)
-        self.printinfo("    [!] Bus is ready",1)
+        self.printinfo("    [!] Bus is ready")
         if clearbyte == 1:
-            self.printinfo("[>] Sending byte to addr",0)
+            self.printinfo("[>] Sending byte to addr")
             self.bus.write_byte(self.addr,0xff)
-            self.printinfo("    [!] Byte sended!",1)
+            self.printinfo("    [!] Byte sended!")
         else:
-            self.printinfo("[*] Omitting clear byte",2)
-    def printinfo(self,what,clr):
-        colors = ['yellow','green','cyan']
+            self.printinfo("[*] Omitting clear byte")
+    def printinfo(self,what):
         if self.debug == 1:
-            cprint(what,colors[clr])
+            print what
     def convert_hex2bin(self,hexval):
         return bin(int(str(hexval),16))[2:].zfill(8)
     def convert_bin2dec(self,binval):
@@ -93,7 +80,7 @@ class control:
             else:
                 command = abin + 10000000
         else:
-            cprint("Pin doesn't exist!, selecting 1","red")
+            print "Pin doesn't exist! selecting 1"
             if str(abin).zfill(8)[7] == "1":
                 command = abin - 1
             else:
@@ -101,16 +88,16 @@ class control:
         return command
     def changestate(self,pin):
         actualbyte=self.bus.read_byte(self.addr)
-        self.printinfo("[*] Raw dec from bus is: " + str(actualbyte),2)
-        self.printinfo("[>] Converting dec to bin...",0)
+        self.printinfo("[*] Raw dec from bus is: " + str(actualbyte))
+        self.printinfo("[>] Converting dec to bin...")
         actualbin=self.convert_dec2bin(actualbyte)
-        self.printinfo("    [!] Converted bin looks like: " + str(actualbin),1)
-        self.printinfo("[>] Generating bin to on/off pin " + str(pin),0)
+        self.printinfo("    [!] Converted bin looks like: " + str(actualbin))
+        self.printinfo("[>] Generating bin to on/off pin " + str(pin))
         cmd=self.generate_new_bin(actualbin,pin)
-        self.printinfo("    [!] Bin generated! (%s)" % str(cmd).zfill(8),1)
-        self.printinfo("[>] Converting bin to dec",0)
+        self.printinfo("    [!] Bin generated! (%s)" % str(cmd).zfill(8))
+        self.printinfo("[>] Converting bin to dec")
         cmddec=self.convert_bin2dec(str(cmd))
-        self.printinfo("    [!] Converted dec looks like: " + str(cmddec),1)
-        self.printinfo("[>] Sending dec to bus",0)
+        self.printinfo("    [!] Converted dec looks like: " + str(cmddec))
+        self.printinfo("[>] Sending dec to bus")
         self.bus.write_byte(self.addr,int(cmddec))
-        self.printinfo("    [!] Dec sended!",1)
+        self.printinfo("    [!] Dec sended!")
